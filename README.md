@@ -11,8 +11,7 @@ Logs are done with Log4j2 and reports are generated using Extent Reports. CI is 
 4. Enter OTP and click Verify
 
 Note: the OTP in the config file is a dummy one, so Flipkart will show an invalid OTP message at the last step.
-The test doesn't fail for this, it just logs the message in the report. For a real login you would have to
-pass the actual OTP that comes on your phone.
+The test doesn't fail for this, it just logs the message in the report.
 
 ## Tools used
 
