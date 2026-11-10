@@ -1,0 +1,16 @@
+target/
+logs/
+reports/
+screenshots/
+test-output/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# eclipse / vscode java files
+.apt_generated/
+.apt_generated_tests/
+.classpath
+.project
+.settings/

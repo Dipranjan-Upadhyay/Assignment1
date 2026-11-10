@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Properties>
+        <Property name="logDir">logs</Property>
+        <Property name="pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %c{1} - %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- console -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${pattern}"/>
+        </Console>
+
+        <!-- full log of the run, old log is moved to archive on every new run -->
+        <RollingFile name="RunLog" fileName="${logDir}/automation.log"
+                     filePattern="${logDir}/archive/automation-%d{yyyy-MM-dd_HH-mm-ss}-%i.log.gz">
+            <PatternLayout pattern="${pattern}"/>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+
+        <!-- separate log file for each test, file name comes from testName set in ThreadContext -->
+        <Routing name="PerTestLog">
+            <Routes pattern="$${ctx:testName}">
+                <!-- when testName is not set -->
+                <Route key="$${ctx:testName}">
+                    <File name="GeneralLog" fileName="${logDir}/general.log" append="false">
+                        <PatternLayout pattern="${pattern}"/>
+                    </File>
+                </Route>
+                <!-- logs/tests/ClassName_methodName.log -->
+                <Route>
+                    <File name="TestLog-${ctx:testName}" fileName="${logDir}/tests/${ctx:testName}.log" append="false">
+                        <PatternLayout pattern="${pattern}"/>
+                    </File>
+                </Route>
+            </Routes>
+        </Routing>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.flipkart" level="debug" additivity="false">
+            <AppenderRef ref="Console" level="info"/>
+            <AppenderRef ref="RunLog"/>
+            <AppenderRef ref="PerTestLog"/>
+        </Logger>
+        <Root level="warn">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RunLog"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,57 @@
+name: Flipkart Automation CI
+
+on:
+  push:
+    branches: [ "main", "feature/**" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: "Browser to run on (chrome | edge | firefox)"
+        required: false
+        default: "chrome"
+
+jobs:
+  ui-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      # add these in repo Settings > Secrets and variables > Actions
+      # if not added, values from config.properties are used
+      LOGIN_MOBILE: ${{ secrets.LOGIN_MOBILE }}
+      LOGIN_OTP: ${{ secrets.LOGIN_OTP }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Show browser version
+        run: google-chrome --version
+
+      - name: Run tests (headless)
+        run: >
+          mvn -B clean test
+          -Dbrowser.headless=true
+          -Dbrowser.name=${{ github.event.inputs.browser || 'chrome' }}
+
+      - name: Upload reports, logs and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_number }}
+          path: |
+            reports/
+            logs/
+            screenshots/
+            target/surefire-reports/
+          if-no-files-found: ignore
+          retention-days: 14
